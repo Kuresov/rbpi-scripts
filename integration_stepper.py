@@ -49,4 +49,3 @@ while iter_neutral > 0:
 	iter_neutral -= 1
 
 GPIO.cleanup()
-
