@@ -20,9 +20,7 @@ spi.max_speed_hz = DEVICE_SPEED_HZ
 
 
 # Stepper motor constants and setup
-GPIO.setmode(GPIO.BCM)
-
-STEP_PINS = [13,16,26,21]
+STEP_PINS = [13, 16, 26, 21]
 CURRENT_ANGLE = 0
 STEP_MULT = 5.833
 STEPPER_SEQ = []
@@ -32,14 +30,18 @@ STEPPER_SEQ.append([GPIO.LOW, GPIO.LOW, GPIO.HIGH,GPIO.LOW])
 STEPPER_SEQ.append([GPIO.LOW, GPIO.LOW, GPIO.LOW,GPIO.HIGH])
 # 360_STEPS = 2100
 
+GPIO.setmode(GPIO.BCM)
+GPIO.setup(STEP_PINS, GPIO.OUT)
+
 def read_adc():
   # Full transaction with MCP3008
   # Signal Mode ensures first byte of SGL-DIFF/D2/D1/D0 is 1; the next
   # 3 bits for 0 to 7 specify channel number. Offset by 4 bits to finish
   # the second of 3 bytes. Last, transfer a set of 8 0-bits as do-not-care.
   res = spi.xfer2([START_BIT, (SET_SIGNAL_MODE + ADC_CHANNEL) << COMMAND_OFFSET, 0])
+  return res
 
-def parse_ir(adc_res):1
+def parse_ir(adc_res):
   data = ((adc_res[1] & 3) << 8) + adc_res[2]
   # Output code = (1024 * VoltageIn) / VoltageReg. We want VoltageIn
   data_scale = (data * REF_VOLTAGE) / float(OUTPUT_CODE_CONST)
@@ -47,22 +49,25 @@ def parse_ir(adc_res):1
   return data_scale
 
 def rotate_stepper(deg):
-    # Keep track of our current angle. Since the call to rotate will
-    # block, we don't have to worry about this being hit multiple
-    # times before the rotation is finished.
-    CURRENT_ANGLE += int(deg)
+  # Keep track of our current angle. Since the call to rotate will
+  # block, we don't have to worry about this being hit multiple
+  # times before the rotation is finished.
+  global CURRENT_ANGLE
+  CURRENT_ANGLE += int(deg)
 
-    if CURRENT_ANGLE >= 360:
-      CURRENT_ANGLE -= 360
+  if CURRENT_ANGLE >= 360:
+    CURRENT_ANGLE -= 360
 
-    steps = (int(deg) * STEP_MULT) / 4
-    print("input %d degrees, stepsations: %d", deg, steps)
+  print("New angle: " CURRENT_ANGLE)
 
-    while steps > 0:
-      for row in STEPPER_SEQ:
-        GPIO.output(STEP_PINS,row)
-        time.sleep(0.02)
-      steps -= 1
+  steps = (int(deg) * STEP_MULT) / 4
+  print("input %d degrees, stepsations: %d", deg, steps)
+
+  while steps > 0:
+    for row in STEPPER_SEQ:
+      GPIO.output(STEP_PINS,row)
+      time.sleep(0.02)
+    steps -= 1
 
 
 try:
