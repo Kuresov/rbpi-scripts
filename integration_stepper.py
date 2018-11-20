@@ -1,5 +1,7 @@
-#!/usr/bin/python
-# Terry Sturtevant, May 10, 2017
+# CP320 - Final Project
+# Author: Alex Kirsopp and Pillip Lee
+# Version 5
+
 import RPi.GPIO as GPIO
 import time
 
@@ -19,33 +21,29 @@ multiplier = 5.833
 
 total = 0
 
-try:
-	while True:
-		val = raw_input("value 0..360, q=quit:")
+def stepper_On(num):
+	global total
+	print(num)
+	val = num
 
-		if val == 'q':
-			break
-		else:
-			total += int(val)
-			iter = (int(val) * multiplier) / 4
-			print("iter %d", iter)
+	total += int(val)
+	iter = (int(val) * multiplier) / 4
+	print("iter %d", iter)
 
-			while iter > 0:
-				for row in stepper_sequence:
-					GPIO.output(stepper_pins,row)
-					time.sleep(0.02)
-				iter -= 1
+	while iter > 0:
+		for row in stepper_sequence:
+			GPIO.output(stepper_pins,row)
+			time.sleep(0.02)
+		iter -= 1
 
-except KeyboardInterrupt:
-	pass
+	iter_neutral = (int(360 - total) * multiplier) / 4
 
-iter_neutral = (int(360 - total) * multiplier) / 4
-#print("iter_neutral %d", iter_neutral)
+	while iter_neutral > 0:
+		for row in stepper_sequence:
+			GPIO.output(stepper_pins,row)
+			time.sleep(0.01)
+		iter_neutral -= 1
 
-while iter_neutral > 0:
-	for row in stepper_sequence:
-		GPIO.output(stepper_pins,row)
-		time.sleep(0.01)
-	iter_neutral -= 1
+	return None
 
 GPIO.cleanup()

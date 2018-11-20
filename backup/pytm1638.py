@@ -1,6 +1,4 @@
-# CP320 - Final Project
-# Author: Alex Kirsopp and Pillip Lee
-# Version 5
+#!/usr/bin/env python
 
 import RPi.GPIO as GPIO
 
@@ -91,6 +89,34 @@ class TM1638(object):
     def send_char(self, pos, data, dot=False):
         self.send_data(pos << 1, data | (128 if dot else 0))
 
+    def set_digit(self, pos, digit, dot=False):
+        for i in range(0, 6):
+            self.send_char(i, self.get_bit_mask(pos, digit, i), dot)
+    
+    def get_bit_mask(self, pos, digit, bit):
+        return ((self.FONT[digit] >> bit) & 1) << pos
+
+    def set_text(self, text):
+        dots = 0b00000000
+        pos = text.find('.')
+        if pos != -1:
+            dots = dots | (128 >> pos+(8-len(text)))
+            text = text.replace('.', '')
+
+        self.send_char(7, self.rotate_bits(dots))
+        text = text[0:8]
+        text = text[::-1]
+        text += " "*(8-len(text))
+        for i in range(0, 7):
+            byte = 0b00000000;
+            for pos in range(8):
+                c = text[pos]
+                if c == 'c':
+                    byte = (byte | self.get_bit_mask(pos, c, i))
+                elif c != ' ':
+                    byte = (byte | self.get_bit_mask(pos, c, i))
+            self.send_char(i, self.rotate_bits(byte))
+
     def receive(self):
         temp = 0
         GPIO.setup(self.dio, GPIO.IN, pull_up_down=GPIO.PUD_UP)
@@ -111,3 +137,16 @@ class TM1638(object):
             keys |= self.receive() << i
         GPIO.output(self.stb, True)
         return keys
+
+    def rotate_bits(self, num):
+        for i in range(0, 4):
+            num = self.rotr(num, 8)
+        return num
+
+    def rotr(self, num, bits):
+        num &= (2**bits-1)
+        bit = num & 1
+        num >>= 1
+        if bit:
+            num |= (1 << (bits-1))
+        return num
