@@ -6,44 +6,44 @@ import RPi.GPIO as GPIO
 import time
 
 GPIO.setmode(GPIO.BCM)
-stepper_pins=[13,16,26,21]
+STEPPER_PINS = [13,16,26,21]
+SLEEP_TIME = 0.01
+MULTIPLIER = 5.833
 
-GPIO.setup(stepper_pins,GPIO.OUT)
+stepper_sequence = [
+	[GPIO.HIGH, GPIO.LOW, GPIO.LOW, GPIO.LOW],
+	[GPIO.LOW, GPIO.HIGH, GPIO.LOW, GPIO.LOW],
+	[GPIO.LOW, GPIO.LOW, GPIO.HIGH, GPIO.LOW],
+	[GPIO.LOW, GPIO.LOW, GPIO.LOW, GPIO.HIGH]
+]
 
-stepper_sequence=[]
-stepper_sequence.append([GPIO.HIGH, GPIO.LOW, GPIO.LOW,GPIO.LOW])
-stepper_sequence.append([GPIO.LOW, GPIO.HIGH, GPIO.LOW,GPIO.LOW])
-stepper_sequence.append([GPIO.LOW, GPIO.LOW, GPIO.HIGH,GPIO.LOW])
-stepper_sequence.append([GPIO.LOW, GPIO.LOW, GPIO.LOW,GPIO.HIGH])
-
-steps_for_360 = 2100
-multiplier = 5.833
-
+GPIO.setup(STEPPER_PINS, GPIO.OUT)
 total = 0
 
-def stepper_On(num):
+def stepper_On(val):
 	global total
-	print(num)
-	val = num
-
 	total += int(val)
-	iter = (int(val) * multiplier) / 4
-	print("iter %d", iter)
 
-	while iter > 0:
+	# Ensure that we don't rotate several revolutions to return to neutral
+	if total >= 360:
+		total -= 360
+
+	iter_given = get_steps(val)
+	rotate_stepper(iter_given)
+
+def stepper_Neutral():
+	# 'total' will be the degrees from neutral we are currently
+  # at. Thus, the neutral angle will be 360 - the current total.
+	iter_neutral = get_steps(360 - total)
+	rotate_stepper(iter_neutral)
+
+def rotate_stepper(steps):
+	while steps > 0:
 		for row in stepper_sequence:
-			GPIO.output(stepper_pins,row)
-			time.sleep(0.02)
-		iter -= 1
+			GPIO.output(STEPPER_PINS, row)
+			time.sleep(SLEEP_TIME)
+		steps -= 1
 
-	iter_neutral = (int(360 - total) * multiplier) / 4
-
-	while iter_neutral > 0:
-		for row in stepper_sequence:
-			GPIO.output(stepper_pins,row)
-			time.sleep(0.01)
-		iter_neutral -= 1
-
-	return None
-
-GPIO.cleanup()
+def get_steps(val):
+	# Convert the degree-value to the number of steps required for that angle
+	return (int(val) * multiplier) / 4

@@ -16,7 +16,7 @@ For this project, the following components have been used.
 
 ```
 - raspberry pi 2
-- TM1638 - 7-sgement display with buttons and LEDs
+- TM1638 - 7-segment display with buttons and LEDs
 - stepper motor
 - infrared sensor
 - python
