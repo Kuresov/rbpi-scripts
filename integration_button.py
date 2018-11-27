@@ -2,7 +2,6 @@
 # Author: Alex Kirsopp and Pillip Lee
 # Version 5
 
-import time
 import pytm1638
 
 DIO = 17		# GPIO/BCM 17
@@ -15,11 +14,10 @@ display.enable(1)
 
 def button_press():
     global angle
+    angle = 0
 
     while True:
-        time.sleep(2)
         pressed = display.get_buttons()
-        print("Inside Integration Button.")
         if pressed == 1:
         angle = 90
         display.set_led(0,1)
@@ -32,9 +30,6 @@ def button_press():
         elif pressed == 8:
         angle = 360
         display.set_led(3, 1)
-
-        print("Button pressed: ", pressed)
-        print("Angle movement: ", angle)
 
         if angle > 0:
             break

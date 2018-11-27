@@ -13,7 +13,8 @@ def display_svn_segment(num):
 	display = pytm1638.TM1638(DIO, CLK, STB)
 
 	display.enable(1)
-    num_byte = [ 63, 6, 91, 79, 102, 109, 125, 7, 127, 103] # 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    # Values for: 0, 1, 2, 3, 4, 5, 6, 7, 8, 9
+    num_byte = [63, 6, 91, 79, 102, 109, 125, 7, 127, 103]
 
 	num = str(("{:.2f}".format(num)))
     seg1 = int(num[0])
@@ -22,7 +23,7 @@ def display_svn_segment(num):
     seg4 = int(num[3])
 
     display.send_char(0, 63)   # 1
-    display.send_char(1, 84)  # 2
+    display.send_char(1, 84)   # 2
     
     # Display Segment 5
     display.send_char(4, num_byte[seg1])
