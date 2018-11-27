@@ -1,4 +1,5 @@
 import exploration_button
+import explor_game
 import time
 
 DIO = 17
@@ -17,9 +18,10 @@ def main():
 
 	try:
 		while True:
-			buttons = exploration_button.TM1638_Button(DIO, CLK, STB)
-			print("Waiting for input...")
-			buttons.wait_for_input(handle_buttons)
+            explor_game.display_score()
+            # buttons = exploration_button.TM1638_Button(DIO, CLK, STB)
+            # print("Waiting for input...")
+            # buttons.wait_for_input(handle_buttons)
 
 	except KeyboardInterrupt:
 		pass

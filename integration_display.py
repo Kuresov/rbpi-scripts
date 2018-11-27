@@ -26,16 +26,16 @@ def display_svn_segment(num):
     display.send_char(1, 84)   # 2
     
     # Display Segment 5
-    display.send_char(4, num_byte[seg1])
+    display.send_char(4, 56)
     display.set_led(4, 1)
     # Display Segment 6
     display.send_char(5, 128)
     display.set_led(5, 1)
     # Display Segment 7
-    display.send_char(6, num_byte[seg3])
+    display.send_char(6, num_byte[0])
     display.set_led(6, 1)
     # Display Segment 8
-    display.send_char(7, num_byte[seg4])
+    display.send_char(7, num_byte[1])
     display.set_led(7, 1)
 
 	return None
