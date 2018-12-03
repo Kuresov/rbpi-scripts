@@ -1,5 +1,6 @@
 # CP320 - Final Project
-# Author: Alex Kirsopp and Pillip Lee
+# Credit: John Blackmore, https://github.com/johnblackmore
+# Modifications by: Alex Kirsopp and Pillip Lee
 # Version 5
 
 import RPi.GPIO as GPIO
